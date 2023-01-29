@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: 2023-present Stéphane Bidoul <stephane.bidoul@acsone.eu>
+# SPDX-License-Identifier: MIT
+
+from pathlib import Path
+
+import typer
+
+from ._split_requirements import GroupSpec, split_requirements
+
+
+def _parse_group_spec(spec: str) -> GroupSpec:
+    name, pattern = spec.split(":", 1)
+    return GroupSpec(name=name, pattern=pattern)
+
+
+def main(
+    requirements_file: Path,
+    *,
+    group_spec: list[str] = typer.Option(  # noqa: B008
+        [],
+        "--group-spec",
+        "-g",
+        help="Group specifications in form name:pattern.",
+    ),
+    prefix: str = typer.Option(  # noqa: B008
+        "requirementsgroup",
+        "--prefix",
+        "-p",
+        help="Each requirements group file will be named {prefix}-{group_name}.txt.",
+    ),
+    default_group: bool = typer.Option(  # noqa: B008
+        default=True,
+        help=(
+            "Automatically append a group named 'other', matching all lines "
+            "not matched by other groups."
+        ),
+    ),
+) -> None:
+    """Split a pip requirements file into multiple files according to patterns.
+
+    Comment lines are ignored.
+    Option lines are emitted in all groups.
+    """
+    parsed_group_specs = [_parse_group_spec(spec) for spec in group_spec]
+    if default_group:
+        parsed_group_specs.append(GroupSpec(name="other", pattern=".*"))
+    split_requirements(requirements_file, parsed_group_specs, prefix)
+
+
+if __name__ == "__main__":
+    typer.run(main)
