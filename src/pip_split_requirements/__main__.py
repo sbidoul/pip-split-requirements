@@ -13,7 +13,7 @@ def _parse_group_spec(spec: str) -> GroupSpec:
     return GroupSpec(name=name, pattern=pattern)
 
 
-def main(
+def _main(
     requirements_file: Path,
     *,
     group_spec: list[str] = typer.Option(  # noqa: B008
@@ -47,5 +47,9 @@ def main(
     split_requirements(requirements_file, parsed_group_specs, prefix)
 
 
+def main() -> None:
+    typer.run(_main)
+
+
 if __name__ == "__main__":
-    typer.run(main)
+    main()

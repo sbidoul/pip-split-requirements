@@ -27,6 +27,8 @@ dynamic = ["version"]
 [project.optional-dependencies]
 test = ["pytest", "coverage", "mypy"]
 
+[project.entry-points.console_scripts]
+pip-split-requirements = "pip_split_requirements.__main__:main"
 
 [project.urls]
 Documentation = "https://github.com/sbidoul/pip-split-requirements#readme"
