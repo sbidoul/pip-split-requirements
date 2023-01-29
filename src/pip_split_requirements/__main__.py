@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 from pathlib import Path
+from typing import List
 
 import typer
 
@@ -16,7 +17,7 @@ def _parse_group_spec(spec: str) -> GroupSpec:
 def _main(
     requirements_file: Path,
     *,
-    group_spec: list[str] = typer.Option(  # noqa: B008
+    group_spec: List[str] = typer.Option(  # noqa: B008
         [],
         "--group-spec",
         "-g",

@@ -5,6 +5,7 @@ import re
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
+from typing import List
 
 from ._req_file_parser import (
     NestedRequirementsLine,
@@ -30,7 +31,7 @@ class SplitRequirementsUnmatchedLineError(SplitRequirementsError):
 
 def split_requirements(
     filename: Path,
-    group_specs: list[GroupSpec],
+    group_specs: List[GroupSpec],
     prefix: str,
 ) -> None:
     """Split a requirements file into multiple files.
@@ -44,7 +45,7 @@ def split_requirements(
     Lines that do not match any group cause a SplitRequirementsError exception to be
     raised.
     """
-    options: list[OptionsLine] = []
+    options: List[OptionsLine] = []
     groups = defaultdict(list)
     for req_line in parse(str(filename), recurse=True, reqs_only=False):
         if isinstance(req_line, OptionsLine):
