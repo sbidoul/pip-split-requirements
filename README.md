@@ -12,7 +12,8 @@ Split a pip requirement files according to regular expression patterns rules.
 - [pip-split-requirements](#pip-split-requirements)
   - [Installation](#installation)
   - [Quick start](#quick-start)
-  - [Usage](#usage)
+  - [CLI Usage](#cli-usage)
+  - [Usage as a pre-commit hook](#usage-as-a-pre-commit-hook)
   - [License](#license)
 
 ## Installation
@@ -53,28 +54,47 @@ pkga
 pkgb
 ```
 
-## Usage
+## CLI Usage
 
 ```text
-Usage: python -m pip_split_requirements [OPTIONS] REQUIREMENTS_FILE
+Usage: pip-split-requirements [OPTIONS] REQUIREMENTS_FILE...
 
   Split a pip requirements file into multiple files according to patterns.
 
   Comment lines are ignored. Option lines are emitted in all groups.
 
 Arguments:
-  REQUIREMENTS_FILE  [required]
+  REQUIREMENTS_FILE...  [required]
 
 Options:
   -g, --group-spec TEXT           Group specifications in form name:pattern.
   -p, --prefix TEXT               Each requirements group file will be named
-                                  {prefix}-{group_name}.txt.  [default:
+                                  {prefix}-{group_name}.txt. The prefix can
+                                  contain path separators, to generate files
+                                  into a chosen directory.  [default:
                                   requirementsgroup]
   --default-group / --no-default-group
                                   Automatically append a group named 'other',
                                   matching all lines not matched by other
                                   groups.  [default: default-group]
   --help                          Show this message and exit.
+```
+
+## Usage as a pre-commit hook
+
+The following section of `.pre-commit-config.yaml` will split `requirements.txt` into a
+group named `vcs` with requirements containing the word `git` and another group with
+everything else, as `build/reqgroup-*.txt`.
+
+```yaml
+  - repo: https://github.com/sbidoul/pip-split-requirements
+    rev: v0.1.0
+    hooks:
+      - id: pip-split-requirements
+        files: ^requirements\.txt$
+        args:
+          - --prefix=build/reqgroup
+          - --group-spec=vcs:git
 ```
 
 ## License

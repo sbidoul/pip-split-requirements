@@ -33,7 +33,11 @@ def _main(
         "requirementsgroup",
         "--prefix",
         "-p",
-        help="Each requirements group file will be named {prefix}-{group_name}.txt.",
+        help=(
+            "Each requirements group file will be named {prefix}-{group_name}.txt. "
+            "The prefix can contain path separators, "
+            "to generate files into a chosen directory."
+        ),
     ),
     default_group: bool = typer.Option(  # noqa: B008
         default=True,
