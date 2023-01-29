@@ -15,7 +15,13 @@ def _parse_group_spec(spec: str) -> GroupSpec:
 
 
 def _main(
-    requirements_file: Path,
+    requirements_files: List[Path] = typer.Argument(  # noqa: B008
+        ...,
+        metavar="REQUIREMENTS_FILE...",
+        file_okay=True,
+        dir_okay=False,
+        exists=True,
+    ),
     *,
     group_spec: List[str] = typer.Option(  # noqa: B008
         [],
@@ -45,7 +51,7 @@ def _main(
     parsed_group_specs = [_parse_group_spec(spec) for spec in group_spec]
     if default_group:
         parsed_group_specs.append(GroupSpec(name="other", pattern=".*"))
-    split_requirements(requirements_file, parsed_group_specs, prefix)
+    split_requirements(requirements_files, parsed_group_specs, prefix)
 
 
 def main() -> None:

@@ -5,7 +5,7 @@ import re
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Sequence
 
 from ._req_file_parser import (
     NestedRequirementsLine,
@@ -30,8 +30,8 @@ class SplitRequirementsUnmatchedLineError(SplitRequirementsError):
 
 
 def split_requirements(
-    filename: Path,
-    group_specs: List[GroupSpec],
+    filenames: Sequence[Path],
+    group_specs: Sequence[GroupSpec],
     prefix: str,
 ) -> None:
     """Split a requirements file into multiple files.
@@ -47,26 +47,27 @@ def split_requirements(
     """
     options: List[OptionsLine] = []
     groups = defaultdict(list)
-    for req_line in parse(str(filename), recurse=True, reqs_only=False):
-        if isinstance(req_line, OptionsLine):
-            options.append(req_line)
-        elif isinstance(req_line, RequirementLine):
-            for group_spec in group_specs:
-                if re.match(group_spec.pattern, req_line.raw_line):
-                    groups[group_spec.name].append(req_line)
-                    break
+    for filename in filenames:
+        for req_line in parse(str(filename), recurse=True, reqs_only=False):
+            if isinstance(req_line, OptionsLine):
+                options.append(req_line)
+            elif isinstance(req_line, RequirementLine):
+                for group_spec in group_specs:
+                    if re.match(group_spec.pattern, req_line.raw_line):
+                        groups[group_spec.name].append(req_line)
+                        break
+                else:
+                    msg = f"Requirement {req_line.raw_line} does not match any group"
+                    raise SplitRequirementsUnmatchedLineError(msg)
+            elif isinstance(req_line, NestedRequirementsLine):
+                # Since parse will recurse into nested requirements files, we can just
+                # ignore these lines.
+                pass
             else:
-                msg = f"Requirement {req_line.raw_line} does not match any group"
-                raise SplitRequirementsUnmatchedLineError(msg)
-        elif isinstance(req_line, NestedRequirementsLine):
-            # Since parse will recurse into nested requirements files, we can just
-            # ignore these lines.
-            pass
-        else:
-            if req_line.raw_line.startswith("#"):
-                continue
-            msg = f"Unexpected requirement line type {req_line.raw_line}"
-            raise SplitRequirementsError(msg)
+                if req_line.raw_line.startswith("#"):
+                    continue
+                msg = f"Unexpected requirement line type {req_line.raw_line}"
+                raise SplitRequirementsError(msg)
     for group_spec in group_specs:
         group_filename = Path(f"{prefix}-{group_spec.name}.txt")
         if group_filename.exists():

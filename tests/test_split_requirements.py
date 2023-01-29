@@ -32,7 +32,7 @@ def test_basic(tmp_path: Path) -> None:
     output_path = tmp_path / "output"
     output_path.mkdir()
     split_requirements(
-        requirements_file,
+        [requirements_file],
         [
             GroupSpec(name="ab", pattern="^pkg[ab]$"),
             GroupSpec(name="c", pattern="^pkgc$"),
@@ -75,7 +75,7 @@ def test_unmatched_line(tmp_path: Path) -> None:
     )
     with pytest.raises(SplitRequirementsUnmatchedLineError):
         split_requirements(
-            requirements_file,
+            [requirements_file],
             [
                 GroupSpec(name="a", pattern="^pkg[ab]$"),
             ],
@@ -96,7 +96,7 @@ def test_nested(tmp_path: Path) -> None:
     (tmp_path / "nestedreqs.txt").write_text("pkgb\n")
     prefix = "reqgroup"
     split_requirements(
-        requirements_file,
+        [requirements_file],
         [
             GroupSpec(name="a", pattern="^pkga$"),
             GroupSpec(name="b", pattern="^pkgb$"),
@@ -120,7 +120,7 @@ def test_no_match(tmp_path: Path) -> None:
     group_b = tmp_path / f"{prefix}-b.txt"
     group_b.touch()
     split_requirements(
-        requirements_file,
+        [requirements_file],
         [
             GroupSpec(name="a", pattern="^pkga$"),
             GroupSpec(name="b", pattern="^pkgb$"),
@@ -129,3 +129,37 @@ def test_no_match(tmp_path: Path) -> None:
     )
     assert (tmp_path / f"{prefix}-a.txt").read_text() == "pkga\n"
     assert not group_b.exists(), "group b should have been removed"
+
+
+def test_multiple_files(tmp_path: Path) -> None:
+    requirements_file = tmp_path / "requirements.txt"
+    requirements_file.write_text(
+        textwrap.dedent(
+            """\
+                pkga
+                other1
+            """,
+        ),
+    )
+    requirements_file2 = tmp_path / "requirements2.txt"
+    requirements_file2.write_text(
+        textwrap.dedent(
+            """\
+                pkgb
+                other2
+            """,
+        ),
+    )
+    prefix = "reqgroup"
+    split_requirements(
+        [requirements_file, requirements_file2],
+        [
+            GroupSpec(name="a", pattern="^pkga$"),
+            GroupSpec(name="b", pattern="^pkgb$"),
+            GroupSpec(name="other", pattern=".*"),
+        ],
+        str(tmp_path / prefix),
+    )
+    assert (tmp_path / f"{prefix}-a.txt").read_text() == "pkga\n"
+    assert (tmp_path / f"{prefix}-b.txt").read_text() == "pkgb\n"
+    assert (tmp_path / f"{prefix}-other.txt").read_text() == "other1\nother2\n"

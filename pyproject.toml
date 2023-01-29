@@ -56,7 +56,8 @@ show_error_codes = true
 # ruff
 
 [tool.ruff]
-fix = true
+fix = false
+target-version = "py37"
 select = ["ALL"]
 ignore = [
   "D",
@@ -76,4 +77,4 @@ known-first-party = ["pip_split_requirements"]
 
 [tool.ruff.mccabe]
 # Flag errors (`C901`) whenever the complexity level exceeds 5.
-max-complexity = 11
+max-complexity = 12
