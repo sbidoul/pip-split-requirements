@@ -4,11 +4,10 @@
 import re
 from collections import defaultdict
 from dataclasses import dataclass
-from itertools import chain
 from pathlib import Path
 from typing import Optional, Sequence
 
-from pip_requirements_parser import RequirementsFile  # type: ignore=import
+from pip_requirements_parser import RequirementsFile  # type: ignore[import]
 
 
 @dataclass
@@ -70,9 +69,10 @@ def split_requirements(
             if header:
                 original_filenames = ", ".join(str(f.name) for f in filenames)
                 f.write(header.format(original_filenames=original_filenames) + "\n")
-            for option_line in chain.from_iterable(rf.options for rf in req_files):
-                if option_line.options.get("requirements"):
-                    continue
-                f.write(option_line.line + "\n")
+            for req_file in req_files:
+                for option_line in req_file.options:
+                    if option_line.options.get("requirements"):
+                        continue
+                    f.write(option_line.line + "\n")
             for req_line in groups[group_spec.name]:
                 f.write(req_line.line + "\n")
