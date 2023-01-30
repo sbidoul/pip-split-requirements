@@ -94,7 +94,7 @@ everything else, as `build/reqgroup-*.txt`.
         files: ^requirements\.txt$
         args:
           - --prefix=build/reqgroup
-          - --group-spec=vcs:git
+          - --group-spec=vcs:.*git
 ```
 
 ## License
