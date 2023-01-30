@@ -21,7 +21,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["typer"]
+dependencies = ["typer", "pip-requirements-parser"]
 dynamic = ["version"]
 
 [project.optional-dependencies]

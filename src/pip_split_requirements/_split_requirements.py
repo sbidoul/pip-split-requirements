@@ -4,15 +4,11 @@
 import re
 from collections import defaultdict
 from dataclasses import dataclass
+from itertools import chain
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 
-from ._req_file_parser import (
-    NestedRequirementsLine,
-    OptionsLine,
-    RequirementLine,
-    parse,
-)
+from pip_requirements_parser import RequirementsFile  # type: ignore=import
 
 
 @dataclass
@@ -50,29 +46,20 @@ def split_requirements(
     Lines that do not match any group cause a SplitRequirementsError exception to be
     raised.
     """
-    options: List[OptionsLine] = []
+    req_files = [
+        RequirementsFile.from_file(str(filename), include_nested=True)
+        for filename in filenames
+    ]
     groups = defaultdict(list)
-    for filename in filenames:
-        for req_line in parse(str(filename), recurse=True, reqs_only=False):
-            if isinstance(req_line, OptionsLine):
-                options.append(req_line)
-            elif isinstance(req_line, RequirementLine):
-                for group_spec in group_specs:
-                    if re.match(group_spec.pattern, req_line.raw_line):
-                        groups[group_spec.name].append(req_line)
-                        break
-                else:
-                    msg = f"Requirement {req_line.raw_line} does not match any group"
-                    raise SplitRequirementsUnmatchedLineError(msg)
-            elif isinstance(req_line, NestedRequirementsLine):
-                # Since parse will recurse into nested requirements files, we can just
-                # ignore these lines.
-                pass
+    for req_file in req_files:
+        for req_line in req_file.requirements:
+            for group_spec in group_specs:
+                if re.match(group_spec.pattern, req_line.line):
+                    groups[group_spec.name].append(req_line)
+                    break
             else:
-                if req_line.raw_line.startswith("#"):
-                    continue
-                msg = f"Unexpected requirement line type {req_line.raw_line}"
-                raise SplitRequirementsError(msg)
+                msg = f"Requirement {req_line.line} does not match any group"
+                raise SplitRequirementsUnmatchedLineError(msg)
     for group_spec in group_specs:
         group_filename = Path(f"{prefix}-{group_spec.name}.txt")
         if group_filename.exists():
@@ -83,7 +70,9 @@ def split_requirements(
             if header:
                 original_filenames = ", ".join(str(f.name) for f in filenames)
                 f.write(header.format(original_filenames=original_filenames) + "\n")
-            for option_line in options:
-                f.write(option_line.raw_line + "\n")
+            for option_line in chain.from_iterable(rf.options for rf in req_files):
+                if option_line.options.get("requirements"):
+                    continue
+                f.write(option_line.line + "\n")
             for req_line in groups[group_spec.name]:
-                f.write(req_line.raw_line + "\n")
+                f.write(req_line.line + "\n")
