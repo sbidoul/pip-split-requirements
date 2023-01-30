@@ -56,7 +56,7 @@ show_error_codes = true
 # ruff
 
 [tool.ruff]
-fix = false
+fix = true
 target-version = "py37"
 select = ["ALL"]
 ignore = [
