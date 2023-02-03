@@ -46,6 +46,10 @@ def _main(
             "not matched by other groups."
         ),
     ),
+    remove_empty: bool = typer.Option(  # noqa: B008
+        default=False,
+        help=("Remove empty requirements group files."),
+    ),
 ) -> None:
     """Split a pip requirements file into multiple files according to patterns.
 
@@ -60,7 +64,12 @@ def _main(
     parsed_group_specs = [_parse_group_spec(spec) for spec in group_spec]
     if default_group:
         parsed_group_specs.append(GroupSpec(name="other", pattern=".*"))
-    split_requirements(requirements_files, parsed_group_specs, prefix)
+    split_requirements(
+        requirements_files,
+        parsed_group_specs,
+        prefix=prefix,
+        remove_empty=remove_empty,
+    )
 
 
 def main() -> None:

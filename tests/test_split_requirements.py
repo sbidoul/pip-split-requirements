@@ -38,7 +38,7 @@ def test_basic(tmp_path: Path) -> None:
             GroupSpec(name="c", pattern="^pkgc$"),
             GroupSpec(name="other", pattern=".*"),
         ],
-        str(output_path / group_prefix),
+        prefix=str(output_path / group_prefix),
         header=None,
     )
     assert len(list(output_path.iterdir())) == 3
@@ -80,7 +80,7 @@ def test_unmatched_line(tmp_path: Path) -> None:
             [
                 GroupSpec(name="a", pattern="^pkg[ab]$"),
             ],
-            "reqgroup",
+            prefix="reqgroup",
         )
 
 
@@ -102,7 +102,7 @@ def test_nested(tmp_path: Path) -> None:
             GroupSpec(name="a", pattern="^pkga$"),
             GroupSpec(name="b", pattern="^pkgb$"),
         ],
-        str(tmp_path / prefix),
+        prefix=str(tmp_path / prefix),
         header=None,
     )
     assert (tmp_path / f"{prefix}-a.txt").read_text() == "pkga\n"
@@ -127,11 +127,35 @@ def test_no_match(tmp_path: Path) -> None:
             GroupSpec(name="a", pattern="^pkga$"),
             GroupSpec(name="b", pattern="^pkgb$"),
         ],
-        str(tmp_path / prefix),
+        prefix=str(tmp_path / prefix),
         header=None,
     )
     assert (tmp_path / f"{prefix}-a.txt").read_text() == "pkga\n"
     assert not group_b.exists(), "group b should have been removed"
+
+
+def test_no_match_generates_empty_file(tmp_path: Path) -> None:
+    requirements_file = tmp_path / "requirements.txt"
+    requirements_file.write_text(
+        textwrap.dedent(
+            """\
+                pkga
+            """,
+        ),
+    )
+    prefix = "reqgroup"
+    split_requirements(
+        [requirements_file],
+        [
+            GroupSpec(name="a", pattern="^pkga$"),
+            GroupSpec(name="b", pattern="^pkgb$"),
+        ],
+        prefix=str(tmp_path / prefix),
+        header=None,
+        remove_empty=False,
+    )
+    assert (tmp_path / f"{prefix}-a.txt").read_text() == "pkga\n"
+    assert (tmp_path / f"{prefix}-b.txt").read_text() == ""
 
 
 def test_multiple_files(tmp_path: Path) -> None:
@@ -161,7 +185,7 @@ def test_multiple_files(tmp_path: Path) -> None:
             GroupSpec(name="b", pattern="^pkgb$"),
             GroupSpec(name="other", pattern=".*"),
         ],
-        str(tmp_path / prefix),
+        prefix=str(tmp_path / prefix),
         header=None,
     )
     assert (tmp_path / f"{prefix}-a.txt").read_text() == "pkga\n"
@@ -184,7 +208,7 @@ def test_header(tmp_path: Path) -> None:
         [
             GroupSpec(name="other", pattern=".*"),
         ],
-        str(tmp_path / prefix),
+        prefix=str(tmp_path / prefix),
     )
     assert (tmp_path / f"{prefix}-other.txt").read_text() == textwrap.dedent(
         """\
@@ -213,7 +237,7 @@ def test_search_vs_match(tmp_path: Path) -> None:
             GroupSpec(name="git", pattern="git"),
             GroupSpec(name="other", pattern=".*"),
         ],
-        str(tmp_path / prefix),
+        prefix=str(tmp_path / prefix),
         header=None,
     )
     assert (tmp_path / f"{prefix}-git.txt").read_text() == (

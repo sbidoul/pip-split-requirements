@@ -83,6 +83,9 @@ Options:
                                   Automatically append a group named 'other',
                                   matching all lines not matched by other
                                   groups.  [default: default-group]
+  --remove-empty / --no-remove-empty
+                                  Remove empty requirements group files.
+                                  [default: no-remove-empty]
   --help                          Show this message and exit.
 ```
 
