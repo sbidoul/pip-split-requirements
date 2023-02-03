@@ -61,7 +61,13 @@ Usage: pip-split-requirements [OPTIONS] REQUIREMENTS_FILE...
 
   Split a pip requirements file into multiple files according to patterns.
 
-  Comment lines are ignored. Option lines are emitted in all groups.
+  Patterns are regular expressions against which requirement lines are
+  searched to determine if they belong to a group. Group specs are evaluated
+  in order, and the first match determines in which group the line goes.
+
+  Comment lines are ignored.
+
+  Option lines are emitted in all groups.
 
 Arguments:
   REQUIREMENTS_FILE...  [required]

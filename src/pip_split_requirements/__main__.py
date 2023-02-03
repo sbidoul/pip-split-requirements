@@ -49,7 +49,12 @@ def _main(
 ) -> None:
     """Split a pip requirements file into multiple files according to patterns.
 
+    Patterns are regular expressions against which requirement lines are searched to
+    determine if they belong to a group. Group specs are evaluated in order, and the
+    first match determines in which group the line goes.
+
     Comment lines are ignored.
+
     Option lines are emitted in all groups.
     """
     parsed_group_specs = [_parse_group_spec(spec) for spec in group_spec]
