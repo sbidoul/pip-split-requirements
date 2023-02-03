@@ -34,6 +34,7 @@ pip-split-requirements = "pip_split_requirements.__main__:main"
 Documentation = "https://github.com/sbidoul/pip-split-requirements#readme"
 Issues = "https://github.com/sbidoul/pip-split-requirements/issues"
 Source = "https://github.com/sbidoul/pip-split-requirements"
+Changelog = "https://github.com/sbidoul/pip-split-requirements/releases"
 
 [tool.hatch.version]
 source = "vcs"
