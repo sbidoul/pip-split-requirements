@@ -192,5 +192,31 @@ def test_header(tmp_path: Path) -> None:
             # from requirements.txt.
             # Do not edit.
             pkga
-        """
+        """,
     )
+
+
+def test_search_vs_match(tmp_path: Path) -> None:
+    requirements_file = tmp_path / "requirements.txt"
+    requirements_file.write_text(
+        textwrap.dedent(
+            """\
+                pkga
+                pip-test-package @ git+https://github.com/pypa/pip-test-package.git
+            """,
+        ),
+    )
+    prefix = "reqgroup"
+    split_requirements(
+        [requirements_file],
+        [
+            GroupSpec(name="git", pattern="git"),
+            GroupSpec(name="other", pattern=".*"),
+        ],
+        str(tmp_path / prefix),
+        header=None,
+    )
+    assert (tmp_path / f"{prefix}-git.txt").read_text() == (
+        "pip-test-package @ git+https://github.com/pypa/pip-test-package.git\n"
+    )
+    assert (tmp_path / f"{prefix}-other.txt").read_text() == "pkga\n"

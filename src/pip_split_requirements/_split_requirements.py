@@ -53,7 +53,7 @@ def split_requirements(
     for req_file in req_files:
         for req_line in req_file.requirements:
             for group_spec in group_specs:
-                if re.match(group_spec.pattern, req_line.line):
+                if re.search(group_spec.pattern, req_line.line):
                     groups[group_spec.name].append(req_line)
                     break
             else:
