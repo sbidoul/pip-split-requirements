@@ -35,6 +35,7 @@ def split_requirements(
         "# Do not edit."
     ),
     remove_empty: bool = True,
+    project_root: Path = Path("."),  # noqa: B008
 ) -> None:
     """Split a requirements file into multiple files.
 
@@ -62,7 +63,7 @@ def split_requirements(
                 msg = f"Requirement {req_line.line} does not match any group"
                 raise SplitRequirementsUnmatchedLineError(msg)
     for group_spec in group_specs:
-        group_filename = Path(f"{prefix}-{group_spec.name}.txt")
+        group_filename = project_root / Path(f"{prefix}-{group_spec.name}.txt")
         if remove_empty and group_spec.name not in groups:
             if group_filename.exists():
                 group_filename.unlink()
