@@ -4,5 +4,5 @@
   entry: pip-split-requirements
   language: python
   require_serial: true
-  files: ^requirements\.txt$
+  files: ^(pyproject.toml|.pre-commit-config.yaml|.*requirement.*\.txt)$
   pass_filenames: false

@@ -126,22 +126,16 @@ requirements_files = ["requirements.txt", "requirements-test.txt"]
 
 ## Usage as a pre-commit hook
 
-The following section of `.pre-commit-config.yaml` will split `requirements.txt` and
-`requirements-test.txt` into a group named `vcs` with requirements containing the word
-`git+https` or `git+ssh` and another group with everything else, as `build/reqgroup-*.txt`.
+The following section of `.pre-commit-config.yaml` will run `pip-split-requirements`
+according using the configuration in `pyproject.toml`. This pre-commit hook runs when
+either `pyproject.toml`, `.pre-commit-config.yaml`, or any file matching the pattern
+`.*requirement.*\.txt` change.
 
 ```yaml
   - repo: https://github.com/sbidoul/pip-split-requirements
-    rev: v0.1.0
+    rev: v0.7.0
     hooks:
       - id: pip-split-requirements
-        files: ^requirements.*.txt$
-        args:
-          - --prefix=build/reqgroup
-          - --group-spec=vcs:git.(https|ssh)
-          - requirements.txt
-          - requirements-test.txt
-
 ```
 
 ## License
