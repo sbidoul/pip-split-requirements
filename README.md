@@ -13,6 +13,7 @@ Split a pip requirement files according to regular expression patterns rules.
   - [Installation](#installation)
   - [Quick start](#quick-start)
   - [CLI Usage](#cli-usage)
+  - [Configuration in pyproject.toml](#configuration-in-pyprojecttoml)
   - [Usage as a pre-commit hook](#usage-as-a-pre-commit-hook)
   - [License](#license)
 
@@ -70,7 +71,8 @@ Usage: pip-split-requirements [OPTIONS] REQUIREMENTS_FILE...
   Option lines are emitted in all groups.
 
 Arguments:
-  REQUIREMENTS_FILE...  [required]
+  REQUIREMENTS_FILE...  The requirements files to split. If not specified,
+                        they are read from pyproject.toml.
 
 Options:
   -g, --group-spec TEXT           Group specifications in form name:pattern.
@@ -86,7 +88,40 @@ Options:
   --remove-empty / --no-remove-empty
                                   Remove empty requirements group files.
                                   [default: no-remove-empty]
+  -r, --project-root DIRECTORY    The project root directory. The generated
+                                  requirements files will be relative to this
+                                  directory. Default options and arguments are
+                                  read from pyproject.toml in this directory.
+                                  [default: .]
+  --install-completion [bash|zsh|fish|powershell|pwsh]
+                                  Install completion for the specified shell.
+  --show-completion [bash|zsh|fish|powershell|pwsh]
+                                  Show completion for the specified shell, to
+                                  copy it or customize the installation.
   --help                          Show this message and exit.
+```
+
+## Configuration in pyproject.toml
+
+`pip-split-requirements` can be configured using `pyproject.toml`. The following values are read from the `tool.pip-split_requirements` section:
+
+- group_specs: list of strings
+- prefix: string
+- default_group: boolean
+- remove_empty: boolean
+- requirements_files: list of strings
+
+Command line options and argument have precedence over `pyproject.toml` values.
+
+The following example configuration split `requirements.txt` and `requirements-test.txt`
+into a group named `vcs` with requirements containing the word `git+https` or `git+ssh`
+and another group with everything else, as `build/reqgroup-*.txt`.
+
+```toml
+[tool.pip-split-requirements]
+prefix = "build/reqgroup"
+group_specs = ["vcs:git.(https|ssh)"]
+requirements_files = ["requirements.txt", "requirements-test.txt"]
 ```
 
 ## Usage as a pre-commit hook

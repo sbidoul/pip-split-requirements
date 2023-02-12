@@ -21,13 +21,17 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["typer", "pip-requirements-parser"]
+dependencies = [
+  "typer",
+  "pip-requirements-parser",
+  "tomli ; python_version<'3.11'",
+]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 test = ["pytest", "coverage", "mypy"]
 
-[project.entry-points.console_scripts]
+[project.scripts]
 pip-split-requirements = "pip_split_requirements.__main__:main"
 
 [project.urls]
@@ -61,15 +65,17 @@ fix = true
 target-version = "py37"
 select = ["ALL"]
 ignore = [
+  "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
   "D",
+  "TCH002", # Move third-party import `pytest` into a type-checking block
   "TCH003", # not mature?
+  "S101",   # Use of assert detected.
 ]
-task-tags = ["SPDX-License-Identifier"]  # avoid ERA001
+task-tags = ["SPDX-License-Identifier"] # avoid ERA001
 
 [tool.ruff.per-file-ignores]
 "tests/*" = [
   "INP001",  # File is part of an implicit namespace package.
-  "S101",    # Use of assert detected.
   "PLR2004", # Magic value used in comparison, consider replacing ... with a constant variable
 ]
 
